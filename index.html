@@ -1,11 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water-Tank</title>
+    <title>Water Tank Problem Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="assets/css/master.css" />
+   
 </head>
+
 <body>
-    
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-droplet"></i>&nbsp; Water Tank Solver</h1>
+            <p class="subtitle">Visualize how much water gets trapped between blocks</p>
+        </header>
+
+        <div class="content-wrapper">
+            <div class="card">
+                <h2>📝 Input Array</h2>
+
+                <div class="input-group">
+                    <label for="blockInput">Enter block heights (comma-separated)</label>
+                    <textarea id="blockInput" placeholder="Example: 0,4,0,0,0,6,0,6,4,0" rows="4"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-solve" id="solveBtn">Solve</button>
+                    <button class="btn-example" id="exampleBtn">Use Example</button>
+                </div>
+
+                <div class="error" id="error"></div>
+
+                <div class="result-box" id="resultBox">
+                    <div class="result-label">Total Water Trapped</div>
+                    <div>
+                        <span class="result-value" id="resultValue">0</span>
+                        <span class="result-unit">units</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h4>📚 How it works</h4>
+                    <div class="algorithm-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div>Find max height to the left of each block</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div>Find max height to the right of each block</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div>Water at position = min(leftMax, rightMax) - height</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div>Sum water from all positions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎨 Visualization</h2>
+                <div class="visualization-container">
+                    <svg id="visualization" viewBox="0 0 600 400">
+                        <defs>
+                            <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.4" />
+                                <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.6" />
+                            </linearGradient>
+                        </defs>
+                        <text x="300" y="200" text-anchor="middle" fill="#cbd5e1" font-size="16">
+                            Enter values and click "Solve" to visualize
+                        </text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+        </footer>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+   
 </body>
+
 </html>
