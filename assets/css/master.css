@@ -40,6 +40,19 @@
      margin: 0 auto;
  }
 
+ ::-webkit-scrollbar {
+     width: 7px;
+ }
+
+ ::-webkit-scrollbar-track {
+     background: var(--accent-primary);
+ }
+
+ ::-webkit-scrollbar-thumb {
+     background: var(--accent-secondary);
+     border-radius: 10px;
+ }
+
  header {
      text-align: center;
      margin-bottom: 50px;
