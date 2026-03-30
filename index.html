@@ -23,7 +23,7 @@
 
                 <div class="input-group">
                     <label for="blockInput">Enter block heights (comma-separated)</label>
-                    <textarea id="blockInput" placeholder="Example: 0,4,0,0,0,6,0,6,4,0" rows="4"></textarea>
+                    <textarea id="blockInput" placeholder="Example: 0,4,0,0,0,6,0,6,4,0" rows="4">0,4,0,0,0,6,0,6,4,0</textarea>
                 </div>
 
                 <div class="button-group">
@@ -46,22 +46,23 @@
                     <div class="algorithm-steps">
                         <div class="step">
                             <div class="step-number">1</div>
-                            <div>Find max height to the left of each block</div>
+                            <div>Compute the maximum height to the left of each block</div>
                         </div>
                         <div class="step">
                             <div class="step-number">2</div>
-                            <div>Find max height to the right of each block</div>
+                            <div>Compute the maximum height to the right of each block</div>
                         </div>
                         <div class="step">
                             <div class="step-number">3</div>
-                            <div>Water at position = min(leftMax, rightMax) - height</div>
+                            <div>Calculate trapped water using: min(leftMax, rightMax) - height[i]</div>
                         </div>
                         <div class="step">
                             <div class="step-number">4</div>
-                            <div>Sum water from all positions</div>
+                            <div>Sum up trapped water for all blocks</div>
                         </div>
                     </div>
                 </div>
+               
             </div>
 
             <div class="card">

@@ -1,216 +1,185 @@
 
+const blockInput = document.getElementById("blockInput");
+const solveBtn = document.getElementById("solveBtn");
+const exampleBtn = document.getElementById("exampleBtn");
+const resultBox = document.getElementById("resultBox");
+const resultValue = document.getElementById("resultValue");
+const errorBox = document.getElementById("error");
+const svg = document.getElementById("visualization");
 
-//  Calculate trapped water
-function calculateWater(heights) {
-  if (!Array.isArray(heights) || heights.length === 0) return 0;
+const exampleArray = [0, 4, 0, 0, 0, 6, 0, 6, 4, 0];
 
-  const n = heights.length;
-  const leftMax = new Array(n).fill(0);
-  const rightMax = new Array(n).fill(0);
+// 👉 Page load → auto solve
+document.addEventListener("DOMContentLoaded", () => {
+  blockInput.value = exampleArray.join(",");
+  solveWaterTank();
+});
 
+// 👉 Example button
+exampleBtn.addEventListener("click", () => {
+  blockInput.value = exampleArray.join(",");
+  clearError();
+  solveWaterTank();
+});
 
-  leftMax[0] = heights[0];
+// 👉 Solve button
+solveBtn.addEventListener("click", solveWaterTank);
+
+// ================= MAIN FUNCTION =================
+function solveWaterTank() {
+  clearError();
+
+  const input = blockInput.value.trim();
+
+  if (!input) {
+    showError("Please enter block heights.");
+    return;
+  }
+
+  const blocks = input
+    .split(",")
+    .map((num) => num.trim())
+    .filter((num) => num !== "")
+    .map(Number);
+
+  if (blocks.some(isNaN) || blocks.some((num) => num < 0)) {
+    showError("Please enter valid non-negative numbers only.");
+    return;
+  }
+
+  const totalWater = calculateWater(blocks);
+
+  // 👉 Show result
+  resultValue.textContent = totalWater;
+  resultBox.classList.add("show");
+
+  // 👉 Draw visualization
+  renderVisualization(blocks);
+}
+
+// ================= WATER CALCULATION =================
+function calculateWater(arr) {
+  const n = arr.length;
+  if (n === 0) return 0;
+
+  const leftMax = new Array(n);
+  const rightMax = new Array(n);
+
+  leftMax[0] = arr[0];
   for (let i = 1; i < n; i++) {
-    leftMax[i] = Math.max(leftMax[i - 1], heights[i]);
+    leftMax[i] = Math.max(leftMax[i - 1], arr[i]);
   }
 
-
-  rightMax[n - 1] = heights[n - 1];
+  rightMax[n - 1] = arr[n - 1];
   for (let i = n - 2; i >= 0; i--) {
-    rightMax[i] = Math.max(rightMax[i + 1], heights[i]);
+    rightMax[i] = Math.max(rightMax[i + 1], arr[i]);
   }
 
-  
-  let totalWater = 0;
+  let water = 0;
+
   for (let i = 0; i < n; i++) {
-    const waterLevel = Math.min(leftMax[i], rightMax[i]);
-    totalWater += Math.max(0, waterLevel - heights[i]);
+    water += Math.min(leftMax[i], rightMax[i]) - arr[i];
   }
 
-  return totalWater;
+  return water;
 }
 
-
-function parseInput(input) {
-  const trimmed = input.trim();
-  if (!trimmed) throw new Error("Please enter values");
-
-  const values = trimmed.split(",").map((v) => {
-    const num = parseInt(v.trim());
-    if (isNaN(num) || num < 0) {
-      throw new Error("All values must be non-negative integers");
-    }
-    return num;
-  });
-
-  if (values.length === 0) throw new Error("Please enter at least one value");
-  return values;
-}
-
-// Visualize using SVG
-function visualize(heights) {
-  const svg = document.getElementById("visualization");
-  svg.innerHTML = "";
-
-  if (heights.length === 0) return;
-
-  const maxHeight = Math.max(...heights, 1);
-  const padding = 40;
-  const width = 600;
+// ================= SVG VISUALIZATION =================
+function renderVisualization(blocks) {
   const height = 400;
-  const blockWidth = (width - 2 * padding) / heights.length;
-  const scale = (height - 2 * padding) / maxHeight;
+  const padding = 40;
+  const barWidth = 45;
+  const gap = 10;
 
-  
-  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-  const waterGradient = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "linearGradient",
-  );
-  waterGradient.setAttribute("id", "waterGradient");
-  waterGradient.setAttribute("x1", "0%");
-  waterGradient.setAttribute("y1", "0%");
-  waterGradient.setAttribute("x2", "0%");
-  waterGradient.setAttribute("y2", "100%");
+  const maxHeight = Math.max(...blocks);
 
-  const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-  stop1.setAttribute("offset", "0%");
-  stop1.setAttribute("style", "stop-color:#06b6d4;stop-opacity:0.4");
+ 
+  const scale = maxHeight === 0 ? 0 : (height - 80) / maxHeight;
 
-  const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
-  stop2.setAttribute("offset", "100%");
-  stop2.setAttribute("style", "stop-color:#0ea5e9;stop-opacity:0.6");
+  const n = blocks.length;
+  const leftMax = new Array(n);
+  const rightMax = new Array(n);
 
-  waterGradient.appendChild(stop1);
-  waterGradient.appendChild(stop2);
-  defs.appendChild(waterGradient);
-  svg.appendChild(defs);
-
-
-  const n = heights.length;
-  const leftMax = new Array(n).fill(0);
-  const rightMax = new Array(n).fill(0);
-
-  leftMax[0] = heights[0];
+  leftMax[0] = blocks[0];
   for (let i = 1; i < n; i++) {
-    leftMax[i] = Math.max(leftMax[i - 1], heights[i]);
+    leftMax[i] = Math.max(leftMax[i - 1], blocks[i]);
   }
 
-  rightMax[n - 1] = heights[n - 1];
+  rightMax[n - 1] = blocks[n - 1];
   for (let i = n - 2; i >= 0; i--) {
-    rightMax[i] = Math.max(rightMax[i + 1], heights[i]);
+    rightMax[i] = Math.max(rightMax[i + 1], blocks[i]);
   }
 
-  
-  for (let i = 0; i < heights.length; i++) {
-    const x = padding + i * blockWidth;
-    const blockHeight = heights[i] * scale;
+  let svgContent = `
+    <defs>
+      <linearGradient id="waterGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.4" />
+        <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.7" />
+      </linearGradient>
+    </defs>
+  `;
+
+  for (let i = 0; i < n; i++) {
+    const x = padding + i * (barWidth + gap);
+
+    const blockHeight = blocks[i] * scale;
     const y = height - padding - blockHeight;
 
-    // Draw water
-    const waterLevel = Math.min(leftMax[i], rightMax[i]);
-    const waterHeight = (waterLevel - heights[i]) * scale;
+    const waterUnits = Math.min(leftMax[i], rightMax[i]) - blocks[i];
+    const waterHeight = waterUnits > 0 ? waterUnits * scale : 0;
 
+  
     if (waterHeight > 0) {
-      const waterRect = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect",
-      );
-      waterRect.setAttribute("x", x + 2);
-      waterRect.setAttribute("y", y + blockHeight);
-      waterRect.setAttribute("width", blockWidth - 4);
-      waterRect.setAttribute("height", waterHeight);
-      waterRect.setAttribute("fill", "url(#waterGradient)");
-      waterRect.setAttribute("rx", "2");
-      svg.appendChild(waterRect);
+      svgContent += `
+        <rect
+          x="${x}"
+          y="${y - waterHeight}"
+          width="${barWidth}"
+          height="${waterHeight}"
+          fill="url(#waterGradient)"
+          rx="2"
+        />
+      `;
     }
 
+ 
+    svgContent += `
+      <rect
+        x="${x}"
+        y="${y}"
+        width="${barWidth}"
+        height="${blockHeight}"
+        fill="#facc15"
+        stroke="#eab308"
+        stroke-width="1"
+        rx="3"
+      />
+    `;
 
-    const blockRect = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "rect",
-    );
-    blockRect.setAttribute("x", x + 2);
-    blockRect.setAttribute("y", y);
-    blockRect.setAttribute("width", blockWidth - 4);
-    blockRect.setAttribute("height", blockHeight);
-    blockRect.setAttribute("fill", "#3b82f6");
-    blockRect.setAttribute("stroke", "#1e40af");
-    blockRect.setAttribute("stroke-width", "1");
-    blockRect.setAttribute("rx", "2");
-    blockRect.setAttribute("class", "block-rect");
-    svg.appendChild(blockRect);
-
-
-    if (heights[i] > 0) {
-      const text = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text",
-      );
-      text.setAttribute("x", x + blockWidth / 2);
-      text.setAttribute("y", y + blockHeight / 2 + 5);
-      text.setAttribute("text-anchor", "middle");
-      text.setAttribute("fill", "#f1f5f9");
-      text.setAttribute("font-size", "12");
-      text.setAttribute("font-weight", "bold");
-      text.setAttribute("pointer-events", "none");
-      text.textContent = heights[i];
-      svg.appendChild(text);
-    }
+   
+    svgContent += `
+      <text
+        x="${x + barWidth / 2}"
+        y="${height - 10}"
+        text-anchor="middle"
+        fill="#cbd5e1"
+        font-size="12"
+      >
+        ${blocks[i]}
+      </text>
+    `;
   }
 
-
-  const baseline = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "line",
-  );
-  baseline.setAttribute("x1", padding);
-  baseline.setAttribute("y1", height - padding);
-  baseline.setAttribute("x2", width - padding);
-  baseline.setAttribute("y2", height - padding);
-  baseline.setAttribute("stroke", "#334155");
-  baseline.setAttribute("stroke-width", "2");
-  baseline.setAttribute("stroke-dasharray", "5,5");
-  svg.appendChild(baseline);
+  svg.innerHTML = svgContent;
 }
 
 
-document.getElementById("solveBtn").addEventListener("click", () => {
-  const errorEl = document.getElementById("error");
-  const resultBox = document.getElementById("resultBox");
+function showError(message) {
+  errorBox.textContent = message;
+  errorBox.classList.add("show");
+}
 
-  try {
-    errorEl.classList.remove("show");
-    const input = document.getElementById("blockInput").value;
-    const heights = parseInput(input);
-
-    const water = calculateWater(heights);
-    document.getElementById("resultValue").textContent = water;
-    resultBox.classList.add("show");
-
-    visualize(heights);
-  } catch (err) {
-    errorEl.textContent = "❌ " + err.message;
-    errorEl.classList.add("show");
-    resultBox.classList.remove("show");
-    document.getElementById("visualization").innerHTML =
-      '<text x="300" y="200" text-anchor="middle" fill="#cbd5e1" font-size="16">Enter values and click "Solve" to visualize</text>';
-  }
-});
-
-document.getElementById("exampleBtn").addEventListener("click", () => {
-  document.getElementById("blockInput").value = "0,4,0,0,0,6,0,6,4,0";
-  document.getElementById("solveBtn").click();
-});
-
-
-document.getElementById("blockInput").addEventListener("keypress", (e) => {
-  if (e.key === "Enter" && e.ctrlKey) {
-    document.getElementById("solveBtn").click();
-  }
-});
-
-// Load example on page load
-window.addEventListener("load", () => {
-  document.getElementById("exampleBtn").click();
-});
+function clearError() {
+  errorBox.classList.remove("show");
+  errorBox.textContent = "";
+}
